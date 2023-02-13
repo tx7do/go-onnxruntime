@@ -50,7 +50,7 @@ ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${FRAMEWORKS_DIR}/onnxruntime/lib
 ENV LIBRARY_PATH ${LIBRARY_PATH}:${FRAMEWORKS_DIR}/onnxruntime/lib
 
 ########## GO BINDING INSTALLATION ###################
-ENV PKG github.com/c3sr/go-onnxruntime
+ENV PKG github.com/tx7do/go-onnxruntime
 WORKDIR /c3sr/go-onnxruntime
 
 RUN git clone --depth=1 --branch=master  https://${PKG}.git .

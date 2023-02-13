@@ -1,7 +1,7 @@
 #ifndef __ERROR_HPP__
 #define __ERROR_HPP__
 
-#include <exceptions.h>
+#include <onnxruntime_cxx_api.h>
 
 /* Description: try and catch MACROS used for C++ functions, adapted from go-pytorch
  * Referenced: 
@@ -20,7 +20,7 @@
 
 #define END_HANDLE_ORT_ERRORS(errVar, retVal)                    \
   }                                                              \
-  catch (const onnxruntime::OnnxRuntimeException &e) {           \
+  catch (const Ort::Exception &e) {           \
     auto msg = e.what();                                         \
     std::cout << "Onnxruntime Exception msg = " << msg << "\n";  \
     errVar.message = strdup(msg);                                \

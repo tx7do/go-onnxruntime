@@ -3,24 +3,24 @@ package main
 import (
 	"context"
 	"image"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
+	"github.com/k0kubun/pp/v3"
+	goTensor "gorgonia.org/tensor"
+
 	"github.com/c3sr/config"
 	"github.com/c3sr/dlframework"
 	"github.com/c3sr/dlframework/framework/feature"
 	"github.com/c3sr/dlframework/framework/options"
-	"github.com/c3sr/go-onnxruntime"
-	c3srimage "github.com/c3sr/image"
+	c3srImage "github.com/c3sr/image"
 	"github.com/c3sr/image/types"
-	nvidiasmi "github.com/c3sr/nvidia-smi"
 	"github.com/c3sr/tracer"
 	_ "github.com/c3sr/tracer/all"
-	"github.com/k0kubun/pp/v3"
-	gotensor "gorgonia.org/tensor"
+
+	"github.com/tx7do/go-onnxruntime"
 )
 
 func normalizeImageCHW(in0 image.Image, mean []float32, scale []float32) ([]float32, error) {
@@ -57,13 +57,13 @@ func normalizeImageCHW(in0 image.Image, mean []float32, scale []float32) ([]floa
 }
 
 var (
-	model       = "torchvision_alexnet"
-	graph_file  = "torchvision_alexnet.onnx"
-	synset_file = "synset.txt"
-	image_file  = "platypus.jpg"
-	shape       = []int{1, 3, 224, 224}
-	mean        = []float32{123.675, 116.280, 103.530}
-	scale       = []float32{58.395, 57.120, 57.375}
+	model      = "torchvision_alexnet"
+	graphFile  = "torchvision_alexnet.onnx"
+	synsetFile = "synset.txt"
+	imageFile  = "platypus.jpg"
+	shape      = []int{1, 3, 224, 224}
+	mean       = []float32{123.675, 116.280, 103.530}
+	scale      = []float32{58.395, 57.120, 57.375}
 )
 
 func main() {
@@ -71,11 +71,11 @@ func main() {
 
 	dir, _ := filepath.Abs("./_fixtures")
 	dir = filepath.Join(dir, model)
-	graph := filepath.Join(dir, graph_file)
-	synset := filepath.Join(dir, synset_file)
+	graph := filepath.Join(dir, graphFile)
+	synset := filepath.Join(dir, synsetFile)
 
 	imgDir, _ := filepath.Abs("./_fixtures")
-	imgPath := filepath.Join(imgDir, image_file)
+	imgPath := filepath.Join(imgDir, imageFile)
 	r, err := os.Open(imgPath)
 	if err != nil {
 		panic(err)
@@ -85,17 +85,17 @@ func main() {
 	height := shape[2]
 	width := shape[3]
 
-	var imgOpts []c3srimage.Option
-	imgOpts = append(imgOpts, c3srimage.Mode(types.RGBMode))
+	var imgOpts []c3srImage.Option
+	imgOpts = append(imgOpts, c3srImage.Mode(types.RGBMode))
 
-	img, err := c3srimage.Read(r, imgOpts...)
+	img, err := c3srImage.Read(r, imgOpts...)
 	if err != nil {
 		panic(err)
 	}
 
-	imgOpts = append(imgOpts, c3srimage.Resized(height, width))
-	imgOpts = append(imgOpts, c3srimage.ResizeAlgorithm(types.ResizeAlgorithmLinear))
-	resized, err := c3srimage.Resize(img, imgOpts...)
+	imgOpts = append(imgOpts, c3srImage.Resized(height, width))
+	imgOpts = append(imgOpts, c3srImage.ResizeAlgorithm(types.ResizeAlgorithmLinear))
+	resized, err := c3srImage.Resize(img, imgOpts...)
 
 	imgFloats, err := normalizeImageCHW(resized, mean, scale)
 	if err != nil {
@@ -103,9 +103,6 @@ func main() {
 	}
 
 	device := options.CPU_DEVICE
-	if nvidiasmi.HasGPU {
-		device = options.CUDA_DEVICE
-	}
 
 	ctx := context.Background()
 
@@ -130,11 +127,11 @@ func main() {
 
 	defer predictor.Close()
 
-	err = predictor.Predict(ctx, []gotensor.Tensor{
-		gotensor.New(
-			gotensor.Of(gotensor.Float32),
-			gotensor.WithBacking(imgFloats),
-			gotensor.WithShape(shape...),
+	err = predictor.Predict(ctx, []goTensor.Tensor{
+		goTensor.New(
+			goTensor.Of(goTensor.Float32),
+			goTensor.WithBacking(imgFloats),
+			goTensor.WithShape(shape...),
 		),
 	})
 
@@ -149,7 +146,7 @@ func main() {
 
 	output := outputs[0].Data().([]float32)
 
-	labelsFileContent, err := ioutil.ReadFile(synset)
+	labelsFileContent, err := os.ReadFile(synset)
 	if err != nil {
 		panic(err)
 	}
@@ -169,7 +166,7 @@ func main() {
 		}
 		sort.Sort(dlframework.Features(rprobs))
 		prediction := rprobs[0]
-		pp.Println(prediction.Probability, prediction.GetClassification().GetIndex(), prediction.GetClassification().GetLabel())
+		_, _ = pp.Println(prediction.Probability, prediction.GetClassification().GetIndex(), prediction.GetClassification().GetLabel())
 	}
 
 }
