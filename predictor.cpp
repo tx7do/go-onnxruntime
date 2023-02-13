@@ -11,10 +11,28 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+
 #include <onnxruntime_cxx_api.h>
 
-#ifdef ORT_WITH_GPU
-#include <cuda_provider_factory.h>
+#include "cpu_provider_factory.h"
+
+#ifdef USE_CUDA
+#   include "cuda_provider_factory.h"
+#endif
+#ifdef USE_DNNL
+#   include "dnnl_provider_factory.h"
+#endif
+#ifdef USE_NUPHAR
+#   include "nuphar_provider_factory.h"
+#endif
+#ifdef USE_TENSORRT
+#   include "tensorrt_provider_factory.h"
+#endif
+#ifdef USE_DML
+#   include "dml_provider_factory.h"
+#endif
+#ifdef USE_MIGRAPHX
+#   include "migraphx_provider_factory.h"
 #endif
 
 using std::string;
@@ -86,7 +104,7 @@ Predictor::Predictor(const string &model_file, ORT_DeviceKind device, bool enabl
 
   for (size_t i = 0; i < num_input_nodes; i++) {
     // get input node names and dimensions
-    input_node_.push_back(session_.GetInputName(i, allocator_));
+    input_node_.push_back(session_.GetInputNameAllocated(i, allocator_).get());
   }
 
   // get output info
@@ -94,7 +112,7 @@ Predictor::Predictor(const string &model_file, ORT_DeviceKind device, bool enabl
 
   for (size_t i = 0; i < num_output_nodes; i++) {
     // get output node names
-    output_node_.push_back(session_.GetOutputName(i, allocator_));
+    output_node_.push_back(session_.GetOutputNameAllocated(i, allocator_).get());
   }
 
 }
@@ -226,7 +244,7 @@ void Predictor::ConvertOutput(void) {
 
 void Predictor::EndProfiling(void) {
   if(enable_trace_)
-  	profile_filename_ = session_.EndProfiling(allocator_);
+  	profile_filename_ = session_.EndProfilingAllocated(allocator_).get();
 }
 
 void ORT_EndProfiling(ORT_PredictorContext pred) {

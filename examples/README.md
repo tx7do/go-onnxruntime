@@ -2,13 +2,13 @@
 
 ## Download the assets
 
-```
+```shell
 cd _fixtures && ./download_alexnet.sh && cd ..
 ```
 
 ## Run
 
-```
+```shell
 go run main.go
 ```
 

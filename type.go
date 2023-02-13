@@ -1,6 +1,6 @@
 package onnxruntime
 
-// #include "cbits/predictor.hpp"
+// #include "lib/predictor.hpp"
 import "C"
 
 import (

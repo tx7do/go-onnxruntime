@@ -2,30 +2,51 @@
 
 ## Install
 
-- Install Image Lib:
+### Install Image Lib:
 
-    ```shell
-    sudo apt install libjpeg-dev libtiff-dev libpng-dev
-    ```
+```shell
+sudo apt install libjpeg-dev libtiff-dev libpng-dev
+```
 
-- Install CUDA Toolkit: 
+### Install [ONNX Runtime](https://github.com/microsoft/onnxruntime):
 
-    <https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html>
+<https://github.com/microsoft/onnxruntime/releases>
 
-- Install [ONNX Runtime](https://github.com/microsoft/onnxruntime):
+```shell
+wget https://github.com/microsoft/onnxruntime/releases/download/v1.14.0/onnxruntime-linux-x64-1.14.0.tgz
 
-    <https://github.com/microsoft/onnxruntime/releases>
+tar -zxvf onnxruntime-linux-x64-1.14.0.tgz
 
-    ```shell
-    wget https://github.com/microsoft/onnxruntime/releases/download/v1.14.0/onnxruntime-linux-x64-1.14.0.tgz
-    
-    tar -zxvf onnxruntime-linux-x64-1.14.0.tgz
-    
-    sudo mv onnxruntime-linux-x64-1.14.0 /opt/onnxruntime
-    ```
+sudo mv onnxruntime-linux-x64-1.14.0 /opt/onnxruntime
 
-- Install [cupti](https://docs.nvidia.com/cuda/cupti/index.html):
+sudo chown -R `whoami` /opt/onnxruntime
+```
 
-    ```shell
-    sudo apt install libcupti-dev
-    ```
+### Install CUDA
+
+#### Install CUDA Toolkit:
+
+<https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html>
+
+#### Install [cupti](https://docs.nvidia.com/cuda/cupti/index.html):
+
+```shell
+sudo apt install libcupti-dev
+```
+
+## Configure Environmental Variables
+
+Configure the linker environmental variables since the Onnxruntime C++ library is under a non-system directory. Place the following in either your `~/.bashrc` or `~/.zshrc` file:
+
+Linux
+```
+export LIBRARY_PATH=$LIBRARY_PATH:/opt/onnxruntime/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/onnxruntime/lib
+
+```
+
+macOS
+```
+export LIBRARY_PATH=$LIBRARY_PATH:/opt/onnxruntime/lib
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/opt/onnxruntime/lib
+```
