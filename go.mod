@@ -7,7 +7,6 @@ require (
 	cloud.google.com/go/compute v1.18.0 // indirect
 	cloud.google.com/go/longrunning v0.4.0 // indirect
 	github.com/GeertJohan/go-sourcepath v0.0.0-20150925135350-83e8b8723a9b
-	github.com/apache/arrow v0.0.0-20230213222840-ddfa8eed9b18 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/benesch/cgosymbolizer v0.0.0-20190515212042-bec6fe6e597b
 	github.com/c3sr/config v1.0.1
@@ -41,7 +40,6 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb // indirect
-	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/oauth2 v0.5.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
