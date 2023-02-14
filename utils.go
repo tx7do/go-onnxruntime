@@ -48,7 +48,7 @@ func ortValueToTensor(ctx C.ORT_Value) tensor.Tensor {
 	switch ty {
 	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED:
 		{
-			panic("undefined data type!")
+			log.Panic("undefined data type!")
 		}
 	case C.ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
 		{
@@ -172,6 +172,9 @@ func ortValueToTensor(ctx C.ORT_Value) tensor.Tensor {
 			)
 		}
 	default:
-		panic("invalid data type")
+		log.Panic("invalid data type")
+		return nil
 	}
+
+	return nil
 }

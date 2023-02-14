@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"image"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -11,17 +12,28 @@ import (
 	"github.com/k0kubun/pp/v3"
 	goTensor "gorgonia.org/tensor"
 
-	"github.com/c3sr/config"
 	"github.com/c3sr/dlframework"
 	"github.com/c3sr/dlframework/framework/feature"
 	"github.com/c3sr/dlframework/framework/options"
+
 	c3srImage "github.com/c3sr/image"
 	"github.com/c3sr/image/types"
+
+	"github.com/c3sr/config"
+
 	"github.com/c3sr/tracer"
 	_ "github.com/c3sr/tracer/all"
 
 	"github.com/tx7do/go-onnxruntime"
 )
+
+func init() {
+	config.Init(
+		config.AppName("carml"),
+		config.VerboseMode(true),
+		config.DebugMode(true),
+	)
+}
 
 func normalizeImageCHW(in0 image.Image, mean []float32, scale []float32) ([]float32, error) {
 	height := in0.Bounds().Dy()
@@ -51,7 +63,7 @@ func normalizeImageCHW(in0 image.Image, mean []float32, scale []float32) ([]floa
 			}
 		}
 	default:
-		panic("unreachable")
+		log.Panic("normalizeImageCHW unreachable")
 	}
 	return out, nil
 }
@@ -67,7 +79,7 @@ var (
 )
 
 func main() {
-	defer tracer.Close()
+	var err error
 
 	dir, _ := filepath.Abs("./_fixtures")
 	dir = filepath.Join(dir, model)
@@ -76,21 +88,26 @@ func main() {
 
 	imgDir, _ := filepath.Abs("./_fixtures")
 	imgPath := filepath.Join(imgDir, imageFile)
-	r, err := os.Open(imgPath)
-	if err != nil {
-		panic(err)
-	}
 
 	batchSize := shape[0]
 	height := shape[2]
 	width := shape[3]
+
+	device := options.CPU_DEVICE
+
+	ctx := context.Background()
+
+	r, err := os.Open(imgPath)
+	if err != nil {
+		log.Panic("os.Open: ", err)
+	}
 
 	var imgOpts []c3srImage.Option
 	imgOpts = append(imgOpts, c3srImage.Mode(types.RGBMode))
 
 	img, err := c3srImage.Read(r, imgOpts...)
 	if err != nil {
-		panic(err)
+		log.Panic("c3srImage.Read: ", err)
 	}
 
 	imgOpts = append(imgOpts, c3srImage.Resized(height, width))
@@ -99,12 +116,8 @@ func main() {
 
 	imgFloats, err := normalizeImageCHW(resized, mean, scale)
 	if err != nil {
-		panic(err)
+		log.Panic("normalizeImageCHW: ", err)
 	}
-
-	device := options.CPU_DEVICE
-
-	ctx := context.Background()
 
 	opts := options.New(options.Context(ctx),
 		options.Graph([]byte(graph)),
@@ -113,42 +126,33 @@ func main() {
 
 	opts.SetTraceLevel(tracer.FULL_TRACE)
 
-	span, ctx := tracer.StartSpanFromContext(ctx, tracer.FULL_TRACE, "onnxruntime_batch")
-	defer span.Finish()
-
-	predictor, err := onnxruntime.New(
-		ctx,
-		options.WithOptions(opts),
-	)
-
-	if err != nil {
-		panic(err)
+	var predictor *onnxruntime.Predictor
+	if predictor, err = onnxruntime.New(ctx, options.WithOptions(opts)); err != nil {
+		log.Panic("onnxruntime.New: ", err)
 	}
 
 	defer predictor.Close()
 
-	err = predictor.Predict(ctx, []goTensor.Tensor{
+	if err = predictor.Predict(ctx, []goTensor.Tensor{
 		goTensor.New(
 			goTensor.Of(goTensor.Float32),
 			goTensor.WithBacking(imgFloats),
 			goTensor.WithShape(shape...),
 		),
-	})
-
-	if err != nil {
-		panic(err)
+	}); err != nil {
+		log.Panic("predictor.Predict: ", err)
 	}
 
 	outputs, err := predictor.ReadPredictionOutput(ctx)
 	if err != nil {
-		panic(err)
+		log.Panic("predictor.ReadPredictionOutput: ", err)
 	}
 
 	output := outputs[0].Data().([]float32)
 
 	labelsFileContent, err := os.ReadFile(synset)
 	if err != nil {
-		panic(err)
+		log.Panic("os.ReadFile", err)
 	}
 
 	labels := strings.Split(string(labelsFileContent), "\n")
@@ -169,12 +173,4 @@ func main() {
 		_, _ = pp.Println(prediction.Probability, prediction.GetClassification().GetIndex(), prediction.GetClassification().GetLabel())
 	}
 
-}
-
-func init() {
-	config.Init(
-		config.AppName("carml"),
-		config.VerboseMode(true),
-		config.DebugMode(true),
-	)
 }

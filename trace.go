@@ -69,8 +69,7 @@ func SplitTrace(t *Trace, startSlice []int64, endSlice []int64) ([]*Trace, error
 
 func NewTrace(data string, startTime int64) (*Trace, error) {
 	trace := new(Trace)
-	err := json.Unmarshal([]byte(data), &trace.TraceEvents)
-	if err != nil {
+	if err := json.Unmarshal([]byte(data), &trace.TraceEvents); err != nil {
 		return nil, err
 	}
 	trace.StartTime = time.Unix(0, startTime)

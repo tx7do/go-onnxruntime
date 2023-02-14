@@ -163,12 +163,13 @@ func (p *Predictor) Close() {
 
 		t, err := NewTrace(profBuffer, startTime)
 		if err != nil {
-			panic(err)
+			//log.Panic("Predictor.Close NewTrace: ", err)
+			return
 		}
 
 		tSlice, err := SplitTrace(t, p.startingTimeSlice, p.endingTimeSlice)
 		if err != nil {
-			panic(err)
+			log.Panic("Predictor.Close SplitTrace: ", err)
 		}
 
 		for batchNum, ctx := range p.ctxSlice {

@@ -63,5 +63,5 @@ func PanicOnError() {
 	if msg == nil {
 		return
 	}
-	panic(C.GoString(msg))
+	log.Panic(C.GoString(msg))
 }

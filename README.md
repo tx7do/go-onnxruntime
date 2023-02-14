@@ -39,14 +39,15 @@ sudo apt install libcupti-dev
 Configure the linker environmental variables since the Onnxruntime C++ library is under a non-system directory. Place the following in either your `~/.bashrc` or `~/.zshrc` file:
 
 Linux
-```
+
+```shell
 export LIBRARY_PATH=$LIBRARY_PATH:/opt/onnxruntime/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/onnxruntime/lib
-
 ```
 
 macOS
-```
+
+```shell
 export LIBRARY_PATH=$LIBRARY_PATH:/opt/onnxruntime/lib
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/opt/onnxruntime/lib
 ```
