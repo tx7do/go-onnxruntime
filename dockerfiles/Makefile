@@ -6,8 +6,8 @@ push: docker_push output ## Push Docker image
 # Build and push Docker image
 release: docker_build docker_push
 
-# Image and binary can be overidden with env vars.
-DOCKER_IMAGE ?= c3sr/go-onnxruntime
+# Image and binary can be overridden with env vars.
+DOCKER_IMAGE ?= tx7do/go-onnxruntime
 
 # Get System architecture
 # for now... ask carl how best to get this
@@ -55,29 +55,19 @@ BUILD_ARGS = --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 		 	 --build-arg ARCH=$(ARCH) \
 			 --build-arg ONNXRUNTIME_VERSION=$(ONNXRUNTIME_VERSION)
 
-docker_build: docker_build_cpu docker_build_gpu
+docker_build: docker_build_cpu
 
 docker_build_cpu: # Build CPU Docker image
 	@docker build $(BUILD_ARGS) \
 		-f Dockerfile.$(ARCH)_cpu_onnxruntime$(ONNXRUNTIME_VERSION) \
 		-t $(DOCKER_IMAGE):$(ARCH)-cpu-onnxruntime$(ONNXRUNTIME_VERSION)-$(DOCKER_TAG) .
 
-docker_build_gpu: # Build GPU Docker image
-	@docker build $(BUILD_ARGS) \
-		-f Dockerfile.$(ARCH)_gpu_onnxruntime$(ONNXRUNTIME_VERSION)_cuda$(CUDA_VERSION) \
-		-t $(DOCKER_IMAGE):$(ARCH)-gpu-onnxruntime$(ONNXRUNTIME_VERSION)-cuda$(CUDA_VERSION)-$(DOCKER_TAG) .
-
 docker_push_cpu: # Tag image as latest and Push to Dockerhub
 	docker tag $(DOCKER_IMAGE):$(ARCH)-cpu-onnxruntime$(ONNXRUNTIME_VERSION)-$(DOCKER_TAG) $(DOCKER_IMAGE):$(ARCH)-cpu-onnxruntime$(ONNXRUNTIME_VERSION)-latest
 	docker push $(DOCKER_IMAGE):$(ARCH)-cpu-onnxruntime$(ONNXRUNTIME_VERSION)-$(DOCKER_TAG)
 	docker push $(DOCKER_IMAGE):$(ARCH)-cpu-onnxruntime$(ONNXRUNTIME_VERSION)-latest
 
-docker_push_gpu: # Tag image as latest and Push to DockerHub
-	docker tag $(DOCKER_IMAGE):$(ARCH)-gpu-onnxruntime$(ONNXRUNTIME_VERSION)-cuda$(CUDA_VERSION)-$(DOCKER_TAG) $(DOCKER_IMAGE):$(ARCH)-gpu-onnxruntime$(ONNXRUNTIME_VERSION)-cuda$(CUDA_VERSION)-latest
-	docker push $(DOCKER_IMAGE):$(ARCH)-gpu-onnxruntime$(ONNXRUNTIME_VERSION)-cuda$(CUDA_VERSION)-$(DOCKER_TAG)
-	docker push $(DOCKER_IMAGE):$(ARCH)-gpu-onnxruntime$(ONNXRUNTIME_VERSION)-cuda$(CUDA_VERSION)-latest
-
-docker_push: docker_push_cpu docker_push_gpu
+docker_push: docker_push_cpu
 
 output:
 	@echo Docker Image: $(DOCKER_IMAGE):$(DOCKER_TAG)

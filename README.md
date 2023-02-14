@@ -1,5 +1,7 @@
 # go-onnxruntime
 
+**CPU SUPPORT ONLY**
+
 ## Install
 
 ### Install Image Lib:
