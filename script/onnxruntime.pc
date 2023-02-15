@@ -1,0 +1,13 @@
+# Package Information for pkg-config
+
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/onnxruntime/lib
+includedir=${prefix}/onnxruntime/include
+
+Name: onnxruntime
+Description: The ONNX Runtime library
+Version: 1.14.0
+Cflags: -I${includedir}
+Libs: -L${libdir} -lonnxruntime
+Libs.private: -lstdc++

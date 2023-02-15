@@ -1,7 +1,7 @@
 package onnxruntime
 
 // #include <stdlib.h>
-// #include "lib/predictor.hpp"
+// #include "predictor.hpp"
 import "C"
 import (
 	"context"

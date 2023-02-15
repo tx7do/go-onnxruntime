@@ -1,6 +1,6 @@
 package onnxruntime
 
-// #include "lib/predictor.hpp"
+// #include "predictor.hpp"
 import "C"
 
 type DeviceKind C.ORT_DeviceKind
