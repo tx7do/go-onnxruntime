@@ -1,11 +1,14 @@
 package onnxruntime
 
-// #include "predictor.hpp"
-// #include <stdlib.h>
+import "C"
+import "unsafe"
+
+/*
+#include "predictor.hpp"
+#include <stdlib.h>
+*/
 import "C"
 import (
-	"unsafe"
-
 	"github.com/pkg/errors"
 )
 

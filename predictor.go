@@ -1,22 +1,26 @@
 package onnxruntime
 
-// #include <stdlib.h>
-// #include "predictor.hpp"
 import "C"
 import (
-	"context"
-	"runtime"
-	"time"
-	"unsafe"
-
-	"github.com/pkg/errors"
-	"github.com/unknwon/com"
-	"gorgonia.org/tensor"
-
 	"github.com/c3sr/dlframework/framework/options"
 	"github.com/c3sr/tracer"
 	"github.com/k0kubun/pp/v3"
 	"github.com/opentracing/opentracing-go"
+	"github.com/pkg/errors"
+	"github.com/unknwon/com"
+	"gorgonia.org/tensor"
+	"runtime"
+	"time"
+	"unsafe"
+)
+
+/*
+#include <stdlib.h>
+#include "predictor.hpp"
+*/
+import "C"
+import (
+	"context"
 )
 
 type Predictor struct {
